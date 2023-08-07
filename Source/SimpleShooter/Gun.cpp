@@ -5,6 +5,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Engine/DamageEvents.h"
+
 
 // Sets default values
 AGun::AGun()
@@ -29,11 +31,33 @@ void AGun::PullTrigger()
 	AController* OwnerController = OwnerPawn->GetController();
 	if(OwnerController == nullptr) return;
 
+	// el location hwa el start point, da location el camera 
+	// el rotation hwa direction el camera
 	FVector Location;
 	FRotator Rotation;
 	OwnerController->GetPlayerViewPoint(Location , Rotation);
 
-	DrawDebugCamera(GetWorld(), Location , Rotation, 90, 2 , FColor::Red, true);
+
+	// Roation.Vector() btgbly el axis elly el camera bassa feeh
+	FVector End = Location + Rotation.Vector() * MaxRange;
+
+	FHitResult Hit;
+	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
+	if(bSuccess)
+	{
+		
+		FVector ShotDirection = -Rotation.Vector();
+
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location , ShotDirection.Rotation());
+		
+		AActor* HitActor = Hit.GetActor();
+		if(HitActor)
+		{
+			FPointDamageEvent DamageEvent(Damage, Hit, ShotDirection, nullptr);
+			HitActor->TakeDamage(Damage, DamageEvent, OwnerController, this);
+		}
+	}
+	
 }
 
 // Called when the game starts or when spawned
