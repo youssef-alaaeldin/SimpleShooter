@@ -29,4 +29,11 @@ public:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
+	void LookRightRate(float AxisValue);
+	void LookUpRate(float AxisValue);
+
+	UPROPERTY(EditAnywhere)
+	float RotationRate = 70;
+
+
 };
