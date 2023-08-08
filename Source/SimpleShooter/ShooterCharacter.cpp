@@ -27,11 +27,7 @@ void AShooterCharacter::BeginPlay()
 
 bool AShooterCharacter::IsDead() const
 {
-	if (Health <= 0)
-	{
-		return true;
-	}
-    return false;
+	return Health <= 0; 
 }
 
 // Called every frame
