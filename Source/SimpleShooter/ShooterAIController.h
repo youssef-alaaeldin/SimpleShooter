@@ -20,5 +20,10 @@ protected:
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
+
+private:
+
+	UPROPERTY(EditAnywhere)
+	class UBehaviorTree* AIBehavior;
 	
 };
