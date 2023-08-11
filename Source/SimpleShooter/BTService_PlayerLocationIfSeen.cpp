@@ -7,6 +7,11 @@
 #include "GameFramework/Pawn.h"
 #include "AIController.h"
 
+UBTService_PlayerLocationIfSeen::UBTService_PlayerLocationIfSeen()
+{
+    NodeName = TEXT("Update Player Location If Seen");
+}
+
 void UBTService_PlayerLocationIfSeen::TickNode(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory, float DeltaSeconds)
 {
     Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
@@ -18,7 +23,12 @@ void UBTService_PlayerLocationIfSeen::TickNode(UBehaviorTreeComponent &OwnerComp
         return;
     }
 
-    if (AIController->LineOfSightTo(PlayerPawn))
+    if(OwnerComp.GetAIOwner() == nullptr)
+    {
+        return;
+    }
+
+    if (OwnerComp.GetAIOwner()->LineOfSightTo(PlayerPawn))
     {
         OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), PlayerPawn->GetActorLocation());
     }
