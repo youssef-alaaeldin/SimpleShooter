@@ -24,40 +24,22 @@ AGun::AGun()
 void AGun::PullTrigger()
 {
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GunMesh, TEXT("MuzzleFlashSocket"));
-
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-
-	if(OwnerPawn == nullptr) return;
-	AController* OwnerController = OwnerPawn->GetController();
-	if(OwnerController == nullptr) return;
-
-	// el location hwa el start point, da location el camera 
-	// el rotation hwa direction el camera
-	FVector Location;
-	FRotator Rotation;
-	OwnerController->GetPlayerViewPoint(Location , Rotation);
-
-
-	// Roation.Vector() btgbly el axis elly el camera bassa feeh
-	FVector End = Location + Rotation.Vector() * MaxRange;
+	UGameplayStatics::SpawnSoundAttached(MuzzleSound, GunMesh, TEXT("MuzzleSocket"));
 
 	FHitResult Hit;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	Params.AddIgnoredActor(GetOwner());
+	FVector ShotDirection;
 
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1 , Params);
-	if(bSuccess)
+	if(GunTrace(Hit, ShotDirection))
 	{
 		
-		FVector ShotDirection = -Rotation.Vector();
-
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location , ShotDirection.Rotation());
-		
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, Hit.Location);
 		AActor* HitActor = Hit.GetActor();
 		if(HitActor)
 		{
+			
 			FPointDamageEvent DamageEvent(Damage, Hit, ShotDirection, nullptr);
+			AController* OwnerController = GetOwnerController();
 			HitActor->TakeDamage(Damage, DamageEvent, OwnerController, this);
 		}
 	}
@@ -68,9 +50,6 @@ void AGun::PullTrigger()
 void AGun::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
-	
 }
 
 // Called every frame
@@ -80,3 +59,32 @@ void AGun::Tick(float DeltaTime)
 
 }
 
+bool AGun::GunTrace(FHitResult &Hit, FVector &ShotDirection)
+{
+	AController* OwnerController = GetOwnerController();
+	if(OwnerController == nullptr) return false;
+	// el location hwa el start point, da location el camera 
+	// el rotation hwa direction el camera
+	FVector Location;
+	FRotator Rotation;
+	OwnerController->GetPlayerViewPoint(Location , Rotation);
+
+	ShotDirection = -Rotation.Vector();
+	// Roation.Vector() btgbly el axis elly el camera bassa feeh
+	FVector End = Location + Rotation.Vector() * MaxRange;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(GetOwner());
+
+	return GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1 , Params);
+}
+
+AController *AGun::GetOwnerController() const
+{
+    APawn* OwnerPawn = Cast<APawn>(GetOwner());
+
+	if(OwnerPawn == nullptr) 
+		return nullptr;
+	return OwnerPawn->GetController();
+	
+}

@@ -22,5 +22,6 @@ public:
 private:
 	
 	void EndGame(bool bIsPlayerWinner);
+
 	
 };
