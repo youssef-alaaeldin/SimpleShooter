@@ -6,6 +6,8 @@
 #include "Components/CapsuleComponent.h"
 #include "SimpleShooterGameModeBase.h"
 
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AShooterCharacter::AShooterCharacter()
 {
@@ -107,5 +109,19 @@ void AShooterCharacter::LookUpRate(float AxisValue)
 
 void AShooterCharacter::Shoot()
 {
-	Gun->PullTrigger();
+	if(Ammo > 0)
+	{
+		Gun->PullTrigger();
+		Ammo--;
+	}
+
+	UGameplayStatics::PlaySound2D(GetWorld(), EmptySound);
+}
+
+
+
+int AShooterCharacter::GetAmmoLeft()
+{
+
+   return FMath::Max(0, Ammo);
 }

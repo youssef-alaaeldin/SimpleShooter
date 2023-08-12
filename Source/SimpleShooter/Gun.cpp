@@ -29,6 +29,8 @@ void AGun::PullTrigger()
 	FHitResult Hit;
 	FVector ShotDirection;
 
+	
+
 	if(GunTrace(Hit, ShotDirection))
 	{
 		

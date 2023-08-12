@@ -38,6 +38,9 @@ public:
 
 	void Shoot();
 
+	UFUNCTION(BlueprintPure)
+	int GetAmmoLeft();
+
 private:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
@@ -59,7 +62,13 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AGun> GunClass;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* EmptySound;
+
 	UPROPERTY()
 	AGun* Gun;
+
+	UPROPERTY(EditAnywhere)
+	int Ammo = 10;
 
 };
